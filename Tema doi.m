@@ -1,0 +1,36 @@
+P=40;    %perioada
+D=10;    %durata semnalului
+N=50;    %numarul de coeficienti
+w0=2*pi/P; %pulsatia
+t_tr=0:0.02:D;
+x_tr= sawtooth((pi/12)*t_tr,0.5)/2+0.5;   %semnal triunghiular
+t = 0:0.02:P; 
+x = zeros(1,length(t));             
+x(t<=D)=x_tr;                             %semnal reconstruit
+figure(1); 
+plot(t,x); 
+title('x(t)(linie solida) si semnalul reconstruit folosind N coeficienti (linie punctata)');
+hold on;
+
+
+for k=-N:N
+    x_t = x_tr;
+    x_t = x_t .* exp(-1j*k*w0*t_tr);                                      %coeficienti SFE
+    X(k+51)=0; 
+    for i = 1: length(t_tr)-1
+        X(k+51) = X(k+51) + (t_tr(i+1)-t_tr(i))* (x_t(i)+x_t(i+1))/2; 
+    end
+end
+    
+
+
+for i = 1: length(t)
+    x_finit(i) = 0;
+    for k=-N:N
+        x_finit(i) = x_finit(i) + (1/P)*X(k+51)*exp(j*k*w0*t(i));            
+    end
+end
+plot(t,x_finit,'--');                                                     %spectru amplitudini
+figure(2);
+w=-N*w0:w0:N*w0; 
+stem(w/(2*pi),abs(X));
